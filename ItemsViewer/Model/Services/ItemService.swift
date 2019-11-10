@@ -48,14 +48,10 @@ extension ItemService: ItemServiceProtocol {
             
             if response?.status == .success, let items = response?.result {
                 self.dbDataSource.save(items: items) { (isSaved: Bool) in
-                    DispatchQueue.main.async {
-                        completion(isSaved, nil)
-                    }
+                    completion(isSaved, nil)
                 }
             } else {
-                DispatchQueue.main.async {
-                    completion(false, error)
-                }
+                completion(false, error)
             }
         }
         self.networkManager.execute(request: request, completion: requestCompletion)

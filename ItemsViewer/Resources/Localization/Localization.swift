@@ -15,6 +15,11 @@ enum ErrorKey: String {
     case unknownDescription = "ErrorKey.unknownDescription"
 }
 
+enum ActionKey: String {
+    case next = "ActionKey.next"
+    case prev = "ActionKey.prev"
+    case back = "ActionKey.back"
+}
 
 final class Localization {
     
@@ -22,7 +27,12 @@ final class Localization {
         return self.loc(key: key.rawValue)
     }
     
+    static func loc(key: ActionKey) -> String {
+        return self.loc(key: key.rawValue)
+    }
+    
     static func loc(key: String) -> String {
-        return NSLocalizedString(key, comment: "")
+        let localizedString = NSLocalizedString(key, comment: "")
+        return localizedString
     }
 }
