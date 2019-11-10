@@ -15,6 +15,6 @@ final class Config {
     static let shared = Config()
     
     // MARK: Network
-    let baseNetworkURL: String = ""
-    let itemsNetworkPath: String = ""
+    let baseNetworkURL: String = "https://cloud.fdoctor.ru/"
+    let itemsNetworkPath: String = "test_task/"
 }

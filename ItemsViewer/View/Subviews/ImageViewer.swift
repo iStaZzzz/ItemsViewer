@@ -9,6 +9,10 @@
 
 import UIKit
 
+// TODO: Remove
+import Alamofire
+import AlamofireImage
+
 
 protocol ImageViewerItemProtocol {
     func urlString() -> String
@@ -148,13 +152,19 @@ fileprivate class ImageCollectionViewCell: UICollectionViewCell {
     
     func reloadUI() {
         self.backgroundColor = self.theme.colors.backgroundDefault()
-        
-        self.imageView?.backgroundColor = self.theme.colors.backgroundPlaceholder()
         self.imageView?.layer.cornerRadius = 10
     }
     
     func reload(item: ImageViewerItemProtocol) {
-        
+        Alamofire.request(item.urlString()).responseImage { [weak self] response in
+            if let image = response.result.value {
+                self?.imageView?.image = image
+                self?.imageView?.backgroundColor = UIColor.white
+            } else {
+                self?.imageView?.image = nil
+                self?.imageView?.backgroundColor = self?.theme.colors.backgroundPlaceholder()
+            }
+        }
     }
     
     // MARK:
@@ -191,7 +201,7 @@ fileprivate class ImageCollectionViewCell: UICollectionViewCell {
         if nil != self.imageView { return }
         
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         
         self.addSubview(imageView)
