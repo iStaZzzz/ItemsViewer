@@ -13,7 +13,7 @@ import UIKit
 typealias ViewControllerReloadCompletion = () -> Void
 
 
-protocol ViewControllerItem: InfoViewPresenterProtocol {
+protocol ViewControllerItem: InfoViewPresenterProtocol, ImageViewerItemProtocol {
     
 }
 
@@ -41,6 +41,8 @@ final class ViewController: UIViewController {
     private weak var reloadView:  ReloadView?
     private weak var infoView:    InfoView?
     private weak var pageControl: UIPageControl?
+    
+    private weak var imageViewer: ImageViewer?
     
     private weak var nextButton:  SubmitButton?
     private weak var prevButton:  SubmitButton?
@@ -98,6 +100,12 @@ final class ViewController: UIViewController {
         pageControlFrame.origin.x = screenInsets.left
         pageControlFrame.origin.y = infoFrame.origin.y - verticalDistance - pageControlFrame.size.height
         self.pageControl?.frame = pageControlFrame
+        
+        var imageViewerFrame = CGRect.zero
+        imageViewerFrame.origin.y = reloadViewFrame.origin.y + reloadViewFrame.size.height + verticalDistance
+        imageViewerFrame.size.width = viewSize.width
+        imageViewerFrame.size.height = pageControlFrame.origin.y - verticalDistance - imageViewerFrame.origin.y
+        self.imageViewer?.frame = imageViewerFrame
     }
 }
 
@@ -110,6 +118,8 @@ private extension ViewController {
             self.pageControl?.numberOfPages = items.count
             
             self.updateSelectedItem(animated: false)
+            
+            self.imageViewer?.reload(items: items)
             
             self.reloadView?.stopReloading()
         }
@@ -137,6 +147,7 @@ private extension ViewController {
         self.addPageControl()
         self.addNextButton()
         self.addPrevButton()
+        self.addImageViewer()
         
         self.reloadUI()
     }
@@ -186,33 +197,41 @@ private extension ViewController {
         self.view.addSubview(button)
         self.prevButton = button
     }
+    
+    func addImageViewer() {
+        if nil != self.imageViewer { return }
+        
+        let view = ImageViewer()
+        view.didScrollCompletion = { [weak self] (scrolledPage: Int) in
+            self?.moveTo(index: scrolledPage, animated: true)
+        }
+        self.view.addSubview(view)
+        self.imageViewer = view
+    }
 }
 
 private extension ViewController {
     
     @objc func pageControlTap(_ pageControl: UIPageControl) {
         let index = pageControl.currentPage
+        self.moveTo(index: index, animated: true)
+    }
+    
+    @objc func nextButtonAction() {
+        self.moveTo(index: self.currentItemIndex + 1, animated: true)
+    }
+    
+    @objc func prevButtonAction() {
+        self.moveTo(index: self.currentItemIndex - 1, animated: true)
+    }
+    
+    func moveTo(index: Int, animated: Bool) {
         let items = self.presenter.currentData()
         guard index >= 0 else { return }
         guard index < items.count else { return }
         
         self.currentItemIndex = index
-        self.updateSelectedItem(animated: true)
-    }
-    
-    @objc func nextButtonAction() {
-        let items = self.presenter.currentData()
-        if self.currentItemIndex < items.count - 1 {
-            self.currentItemIndex += 1
-            self.updateSelectedItem(animated: true)
-        }
-    }
-    
-    @objc func prevButtonAction() {
-        if self.currentItemIndex > 0 {
-            self.currentItemIndex -= 1
-            self.updateSelectedItem(animated: true)
-        }
+        self.updateSelectedItem(animated: animated)
     }
     
     func updateSelectedItem(animated: Bool) {
@@ -225,6 +244,8 @@ private extension ViewController {
         self.infoView?.reloadDataUI(animated: animated)
         
         self.pageControl?.currentPage = self.currentItemIndex
+        
+        self.imageViewer?.scrollTo(page: self.currentItemIndex, animated: animated)
         
         let animationDuration: TimeInterval = animated ? self.theme.animations.defaultAnimationDuration() : 0
         UIView.animate(withDuration: animationDuration) {

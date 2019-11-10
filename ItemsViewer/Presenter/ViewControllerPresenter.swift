@@ -25,7 +25,13 @@ class ViewControllerItemAdapter: ViewControllerItem {
     }
     
     func description() -> String {
-        return item.description + ".\n" + item.dose + "."
+        return self.item.description + ".\n" + item.dose + "."
+    }
+    
+    // MARK: ImageViewerItemProtocol
+    
+    func urlString() -> String {
+        return self.item.image
     }
 }
 

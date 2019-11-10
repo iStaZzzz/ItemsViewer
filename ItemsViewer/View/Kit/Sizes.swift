@@ -27,6 +27,10 @@ class Sizes {
     }
     
     func defaultHeight() -> CGFloat {
+        let screenHeight = UIScreen.main.bounds.height
+        
+        if screenHeight <= 568 { return 15 }
+        
         return 30
     }
     
@@ -35,10 +39,19 @@ class Sizes {
     }
     
     func verticalDistance() -> CGFloat {
+        let screenHeight = UIScreen.main.bounds.height
+        
+        if screenHeight >= 896 { return 30 }
+        if screenHeight <= 568 { return 10 }
+        
         return 20
     }
     
     func infoViewHeight() -> CGFloat {
+        let screenHeight = UIScreen.main.bounds.height
+        
+        if screenHeight >= 896 { return 120 }
+        
         return 100
     }
     

@@ -60,7 +60,6 @@ final class InfoView: UIView {
         textFrame.origin.y = textHeight + inset
         self.descriptionLabel?.frame = textFrame
     }
-
 }
 
 private extension InfoView {
